@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% block header %}
+    {% include 'header.html' %}
+{% endblock %}
+{% block body %}
+  <div>
+    <div style="color:red">
+      {% if messages %}
+        {% for message in messages %}
+          {{ message }}
+        {% endfor %}
+      {% endif %}
+        </div>
+  </div>
+<div style="float:right;margin-right:50px">
+    <a href="{% url 'order:cart' %}">
+    <button class="btn">
+        <i class="fa" style="font-size:24px">&#xf07a;</i>
+        <span class='badge badge-warning' id='lblCartCount'>{{ cart_count }}</span>
+    </button>
+    </a>
+</div>
+<div style="float: right;">
+<a href="{% url 'book:addbook' %}">
+    <button class="btn">
+        <i class="fa fa-plus-square"> Add Book</i>
+    </button>
+</a>
+
+</div>
+    <!--Search-Bar for Products-->
+  <!-- search bar right align -->
+<div>
+    <form action="{% url 'book:booklist'%}" id="searchform">
+
+        <div class="card-body row no-gutters align-items-center"
+             style="display: table-footer-group;">
+            <div class="col-auto">
+            </div>
+            <div class="col">
+                <input class="form-control form-control-lg
+                       form-control-borderless"
+                       type="search" placeholder="Search Book" name="search" value="{{request.GET.search}}">
+            </div>
+                       <div class="col-auto">
+            </div>
+            <div class="col">
+                <button class="btn btn-lg btn-success"
+                        type="submit"> Search
+                </button>
+            </div>
+
+        </div>
+    </form>
+</div>
+<div class="col-10">
+            <ul>
+              <li class="filters"><strong>Sort By :</strong></li>
+              <li class="filters"><a class="filter_by"
+                href="?page={{ page_obj.number}}&sort=name">Book Name</a></li>
+              <li class="filters"><a class="filter_by"
+                href="?sort=price&page={{ page_obj.number}} ">Price</a></li>
+              <li class="filters"><a class="filter_by"
+                href="?page={{ page_obj.number}}&sort=auth">Author Name</a></li>
+              <li class="filters"><a class="filter_by"
+                href="?page={{ page_obj.number}}&sort=new">Newest First</a></li>
+
+            </ul>
+        </div>
+
+
+<div class="row">
+    {% for book in books %}
+
+     <a href="{% url 'book:detailView' book.pk %}">
+
+    <div class="col-sm-6" style="margin-top:20px;max-width: 400px; max-height : 400px">
+      <div class="card" >
+        <div class="card-body">
+            <div style="display: flex;">
+                <div>
+                    <img class="card-img-top"
+                         src="{{book.frontpic.url}}" width="150" height="150">
+                </div>
+                <div style="margin-left:20px">
+                    <h5 class="card-title">
+                        Name :{{ book.name }}
+                    </h5><br>
+                    <h2 class="card-title" >{{ book.author }}</h2>
+                    <h2 class="card-title" >₹{{ book.price }}</h2>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+     </a>
+    {% endfor %}
+ </div>
+<div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="
+            {% if request.GET.search %}
+                ?page=1&search={{request.GET.search}}
+            {% elif request.GET.sort %}
+                ?page=1&sort={{request.GET.sort}}
+            {% else %}
+                ?page=1{% endif %}"
+            >&laquo; first</a>
+            <a href="
+            {% if request.GET.search %}
+                ?page={{ page_obj.previous_page_number }}&search={{request.GET.search}}
+            {% elif request.GET.sort %}
+                ?page={{ page_obj.previous_page_number }}&sort={{request.GET.sort}}
+            {% else %}
+                ?page={{ page_obj.previous_page_number }}{% endif %}
+            ">previous</a>
+        {% endif %}
+
+{% if is_paginated %}
+        <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="
+             {% if request.GET.search %}
+            ?page={{ page_obj.next_page_number }}&search={{request.GET.search}}
+            {% elif request.GET.sort %}
+            ?page={{ page_obj.paginator.num_pages }}&sort={{request.GET.sort}}
+            {% else %}
+            ?page={{ page_obj.paginator.num_pages }}{% endif %}
+            ">next
+            </a>
+            <a href="
+            {% if request.GET.search %}
+            ?page={{ page_obj.next_page_number }}&search={{request.GET.search}}
+            {% elif request.GET.sort %}
+            ?page={{ page_obj.paginator.num_pages }}&sort={{request.GET.sort}}
+            {% else %}
+            ?page={{ page_obj.paginator.num_pages }}{% endif %}
+            ">last &raquo;
+            </a>
+        {% endif %}
+    </span>
+</div>
+{% endif %}
+<script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
+<script>
+    $("#searchform").validate({
+    rules: {
+		search: {
+			required: true
+			}
+		},
+	messages: {
+        search: {
+            required: "Cannot  search null or with blank spaces"
+            }
+     }
+    });
+</script>
+{% endblock %}

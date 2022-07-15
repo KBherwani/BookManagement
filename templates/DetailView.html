@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block body %}
+<div style="float:right;margin-right:50px">
+    <a href="{% url 'order:cart' %}">
+    <button class="btn">
+        <i class="fa" style="font-size:24px">&#xf07a;</i>
+        <span class='badge badge-warning' id='cart_count'>{{ cart_count }}</span>
+    </button>
+    </a>
+</div>
+<h1>{{form.name.value}}</h1>
+<div style="display: inline-flex;">
+    <div>
+        <img src="{{book.frontpic.url}}"/>
+    </div>
+    <div style="align-self: center;font-size: 20px;margin-left:20px">
+        Name : {{book.name}}<br>
+        Author of Book : {{book.author}}<br>
+        Founded on : {{book.founded}}<br>
+        ₹{{book.price}}<br>
+        <a href="{{book.file.url}}" target="_blank">
+            <button type="button" class="btn btn-info">Download Book</button>
+        </a>
+        <a href="{% url 'book:updateBook' book.pk %}">
+            <button type="button" class="btn btn-warning">Update Book</button>
+        </a>
+        <button data-action-url="{% url 'order:cart' book.pk %}"
+                id="addtocart" type="button" class="btn btn-success">
+            Add to Cart</button>
+    </div>
+</div>
+<div style="font-size: 25px;">
+    About Book : {{book.short_desc}}
+</div>
+<div style="margin-top:35px">
+    <h3>Comments & Reviews </h3>
+    {% for comment in book.comment_content.all %}
+    <ul>
+        <li class="comment">
+            <div class="comment-body">
+                <div class="meta mb-3">{{ comment.content }}</div>
+                <p>{{ comment.timestamp }}</p>
+            </div>
+        </li>
+    </ul>
+
+
+    {% endfor %}
+</div>
+<form method="POST">
+    {% csrf_token %}
+    {{comment}}
+    <button type="submit" class="btn btn-info">Add Comment</button>
+</form>
+{% endblock %}
+
+{% block extrajs %}
+
+<script>
+var csrf_token = '{{csrf_token}}'
+$(document).on('click', '#addtocart', function(e){
+    e.preventDefault();
+    $.ajax({
+        url:$(this).attr('data-action-url'),
+         type: 'GET',  // http method
+         data: { myData: 'This is my data.' },  // data to submit
+         success: function (response) {
+            if (response.status == 'success'){
+                $('#cart_count').text(response.items_count);
+
+            }
+             },
+         error: function (jqXhr, textStatus, errorMessage) { // if any error come then
+                 $('p').append('Error' + errorMessage);
+        }
+    });
+});
+</script>
+{% endblock %}
+
+
+

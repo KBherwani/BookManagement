@@ -1,0 +1,10 @@
+
+.page-holder {
+  min-height: 100vh;
+  min-height: 50vh;
+
+}
+
+.bg-cover {
+  background-size: cover !important;
+}

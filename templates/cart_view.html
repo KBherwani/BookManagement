@@ -1,0 +1,107 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/cart_view.css' %}">
+
+<body>
+   <div class="CartContainer">
+   	   <div class="Header">
+   	   	<h3 class="Heading">Shopping Cart</h3>
+   	   	<h5 class="Action">Remove all</h5>
+   	   </div>
+{% for cart in cart %}
+	   <div class="Cart-Items" id="cart_items_{{cart.pk}}">
+   	   	  <div class="image-box" >
+   	   	  	<img src="{{cart.book.frontpic.url}}" width="120px" height="120px"
+                 style=" border-radius: 30%;" />
+   	   	  </div>
+   	   	  <div class="about">
+   	   	  	<h1 class="title">{{cart.book.name}}</h1>
+   	   	  	<h3 class="subtitle">By - {{cart.book.author}}</h3>
+   	   	  	<h1 class="title">{{cart.book.price}}</h1>
+
+   	   	  </div>
+   	   	  <div class="counter">
+   	   	  	<label for="quantity">Quantity</label>
+            <input type="number"
+				   class="quantity"
+				   id="quantity"
+				   min=1
+				   data-action-url = "{% url 'order:cart_update' %}"
+				   value="{{cart.quantity}}"
+				   name="quantity"
+				   data-id={{cart.pk}}>
+   	   	  </div>
+
+   	   	  <div class="prices">
+   	   	  	<div class="amount" id="price_{{cart.pk}}">{{cart.price}}</div>
+   	   	  	<div class="remove">
+			  <a class="remove_item" id="remove_{{cart.pk}}"
+			  	data-action-url = "{% url 'order:delete_cart_item' %}"
+				data-id = {{cart.pk}}>
+			  Remove</a></div>
+   	   	  </div>
+   	   </div>
+{% endfor %}
+   	 <hr>
+   	 <div class="checkout">
+   	 <div class="total">
+   	 	<div>
+   	 		<div class="Subtotal">Sub-Total</div>
+   	 		<div class="items" id="item_count">{{items_count}} items</div>
+   	 	</div>
+   	 	<div class="total-amount" id="total">{{total}}</div>
+   	 </div>
+		 <a href="{% url 'order:checkout' %}">
+   	 		<button class="button"
+				 id="checkout_btn">Cash-On-Delivery
+			</button>
+		 </a>
+		 <a href="{% url 'order:online-payment' %}">
+   	 		<button class="button">Onilne Payments
+			</button>
+		 </a>
+
+
+
+    </div>
+
+   </div>
+	 </div>
+   </div>
+
+
+
+</body>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script>
+	 var csrf_token = '{{csrf_token}}'
+	 $(".quantity").on("change", function(e) {
+	  	e.preventDefault();
+		$.ajax ({
+			type: 'post',
+			url:$(this).attr('data-action-url'),
+			data:{'csrfmiddlewaretoken':csrf_token, 'pk': $(this).attr('data-id'),
+			'quantity':$(this).val()
+			},
+			success: function(response){
+				$('#price_'+response.pk).text(response.price);
+				$('#item_count').text(response.items_count )
+				$('#total').text(response.total);
+        }
+		});
+	});
+	var csrf_token = '{{csrf_token}}'
+	$(document).on('click', '.remove_item', function(e){
+    e.preventDefault();
+    $.ajax ({
+			type: 'post',
+			url:$(this).attr('data-action-url'),
+			data:{'csrfmiddlewaretoken':csrf_token,'pk': $(this).attr('data-id')
+		      },
+		    success: function(response){
+		    $('#item_count').text(response.items_count)
+			$('#total').text(response.total);
+		    $('#cart_items_'+response.pk).remove();
+		    }
+		});
+	});
+</script>
